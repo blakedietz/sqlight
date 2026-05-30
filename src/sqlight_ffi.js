@@ -32,6 +32,16 @@ export function exec(sql, connection) {
   }
 }
 
+export function load_extension(_path, _entrypoint, _connection) {
+  return new GlError(
+    new SqlightError(
+      error_code_from_int(1),
+      "SQLite extension loading is only supported on the Erlang target",
+      -1
+    )
+  );
+}
+
 export function query(sql, connection, parameters) {
   let rows;
   try {

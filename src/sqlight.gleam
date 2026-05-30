@@ -416,6 +416,28 @@ fn coerce_value(a: a) -> Value
 @external(javascript, "./sqlight_ffi.js", "exec")
 fn exec_(a: String, b: Connection) -> Result(Nil, Error)
 
+@external(erlang, "sqlight_ffi", "load_extension")
+@external(javascript, "./sqlight_ffi.js", "load_extension")
+fn load_extension_(
+  path: String,
+  entrypoint: String,
+  connection: Connection,
+) -> Result(Nil, Error)
+
+/// Load a SQLite extension on a connection.
+///
+/// The Erlang target delegates to SQLite's native extension-loading API.
+/// Extension loading is enabled only for the duration of the load operation.
+/// Pass an empty `entrypoint` to let SQLite derive the entry point from the
+/// extension filename.
+pub fn load_extension(
+  path path: String,
+  entrypoint entrypoint: String,
+  on connection: Connection,
+) -> Result(Nil, Error) {
+  load_extension_(path, entrypoint, connection)
+}
+
 /// Convert a Gleam `Option` to an SQLite nullable value, to be used an argument
 /// to a query.
 ///

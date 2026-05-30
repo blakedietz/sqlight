@@ -1,7 +1,7 @@
 -module(sqlight_ffi).
 
 -export([
-    status/0, query/3, exec/2, coerce_value/1, coerce_blob/1, null/0, open/1, close/1
+    status/0, query/3, exec/2, load_extension/3, coerce_value/1, coerce_blob/1, null/0, open/1, close/1
 ]).
 
 open(Name) ->
@@ -28,6 +28,16 @@ exec(Sql, Connection) ->
     case esqlite3:exec(Connection, Sql) of
         {error, Code} -> to_error(Connection, Code);
         ok -> {ok, nil}
+    end.
+
+load_extension(Path, EntryPoint, Connection) ->
+    case esqlite3:load_extension(Connection, Path, EntryPoint) of
+        ok ->
+            {ok, nil};
+        {error, {Code, Message}} ->
+            {error, {sqlight_error, sqlight:error_code_from_int(Code), Message, -1}};
+        {error, Code} ->
+            to_error(Connection, Code)
     end.
 
 stats(#{used := Used, highwater := Highwater}) ->
