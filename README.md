@@ -76,6 +76,38 @@ pub fn main() {
 }
 ```
 
+### Loading a SQLite extension
+
+`load_extension` loads a SQLite run-time extension (a shared library) onto a
+connection. Extension loading is enabled only for the duration of the call.
+Pass an empty `entrypoint` to let SQLite derive the entry point from the
+filename, or name it explicitly. This is supported on the Erlang target only;
+on JavaScript it returns an error.
+
+```gleam
+import gleam/dynamic/decode
+import sqlight
+
+pub fn main() {
+  use conn <- sqlight.with_connection("my.db")
+
+  // Load an extension. The path is to the shared library, without the
+  // platform-specific suffix (.so/.dylib/.dll), which SQLite appends.
+  let assert Ok(Nil) =
+    sqlight.load_extension(path: "./uuid", entrypoint: "", on: conn)
+
+  // The functions provided by the extension are now available in SQL.
+  let uuid_decoder = decode.at([0], decode.string)
+  let assert Ok([_uuid]) =
+    sqlight.query(
+      "select uuid()",
+      on: conn,
+      with: [],
+      expecting: uuid_decoder,
+    )
+}
+```
+
 Documentation can be found at <https://hexdocs.pm/sqlight>.
 
 ## Why SQLite?
