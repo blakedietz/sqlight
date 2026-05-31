@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - main
+      - load-extension
   pull_request:
 
 jobs:
