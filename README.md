@@ -7,6 +7,39 @@ Use [SQLite](https://www.sqlite.org/index.html) from Gleam!
 
 Works on Erlang or JavaScript running on Deno.
 
+> **Fork note — `sqlight.load_extension`**
+>
+> This fork adds `sqlight.load_extension(path:, entrypoint:, on:)` for loading
+> SQLite run-time extensions, and depends on a matching
+> [esqlite fork](https://github.com/blakedietz/esqlite/tree/load-extension)
+> (the stock Hex `esqlite` does not export `load_extension/3`).
+>
+> ## Using this fork
+>
+> Point both dependencies at the forks in your `gleam.toml`:
+>
+> ```toml
+> [dependencies]
+> sqlight = { git = "https://github.com/blakedietz/sqlight.git", ref = "load-extension" }
+> ```
+>
+> `esqlite` is a rebar3 package with a C NIF. Gleam compiles that NIF
+> automatically **only for Hex dependencies** — when esqlite is pulled in as a
+> **git** dependency (as it is here), Gleam does not run rebar3, so you must
+> build the NIF yourself after fetching deps:
+>
+> ```sh
+> gleam deps download
+> (cd build/packages/esqlite && make compile)   # builds priv/esqlite3_nif.so
+> gleam build                                    # or: gleam test --target erlang
+> ```
+>
+> Re-run the `make compile` step whenever `build/packages/` is regenerated
+> (e.g. after changing dependencies or a clean checkout). A C toolchain and
+> `rebar3` must be available. See `.github/workflows/test.yml` for a working
+> CI example. The JavaScript target does not support extension loading and
+> `load_extension` returns an error there.
+
 ```sh
 gleam add sqlight
 ```

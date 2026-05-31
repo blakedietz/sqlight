@@ -24,5 +24,11 @@ jobs:
       - run: gleam format --check src test
       - run: gleam deps download
 
+      # esqlite is pulled as a git dependency, so Gleam does not run its
+      # rebar3 build (it only does that for Hex packages). Build the C NIF
+      # by hand before the Erlang tests, otherwise esqlite3_nif.so is missing
+      # and the NIF fails to load at runtime.
+      - run: cd build/packages/esqlite && make compile
+
       - run: gleam test --target erlang
       - run: gleam test --target javascript
